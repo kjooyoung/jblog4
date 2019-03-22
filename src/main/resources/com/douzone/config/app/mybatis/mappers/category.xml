@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="category">
+	<insert id="insertDefault" parameterType="uservo">
+		insert into category values(null, '내 글', '기본 카테고리', now(), #{no} )
+	</insert>
+	
+	<select id="getList" parameterType="string" resultType="categoryvo">
+		select a.no as no, a.name as name, description, a.reg_date as regDate, user_no as userNo,
+				(select count(*) from post where category_no = a.no) as totalPost
+		from category a, user b
+		where a.user_no = b.no and b.id = #{id};
+	</select>
+	
+	<select id="getListByNo" parameterType="long" resultType="categoryvo">
+		select no, name, description, reg_date as regDate, user_no as userNo from category 
+		where user_no = #{no}
+	</select>
+	
+	<insert id="insert" parameterType="categoryvo">
+		<selectKey keyProperty="no" order="AFTER" resultType="long">
+			<![CDATA[
+			select last_insert_id()
+			]]>
+		</selectKey>
+		insert into category values(null, #{name}, #{description}, now(), #{userNo} )
+	</insert>
+	
+	<delete id="delete" parameterType="long">
+		delete from category where no = #{no}
+	</delete>
+	
+	<select id="getCountById" parameterType="string" resultType="integer">
+		select count(*) from category a, user b
+		where a.user_no = b.no
+		and b.id = #{id};
+	</select>
+</mapper>

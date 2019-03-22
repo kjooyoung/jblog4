@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="post">
+	<insert id="insert" parameterType="postvo">
+		insert into post values(null,
+		#{title}, #{content}, now(), #{categoryNo})
+	</insert>
+
+	<select id="getList" parameterType="map" resultType="postvo">
+		select a.no as no, title, a.content as content, date_format(a.reg_date, '%Y-%m-%d') as regDate, category_no
+		as categoryNo
+		from post a, category b where a.category_no = b.no 
+		<choose>
+			<when test="categoryNo != null">
+				and b.no = #{categoryNo}
+			</when>
+			<otherwise>
+				and b.no = (select min(a.no) from category a, user b
+				where a.user_no = b.no and b.id = #{id})
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="get" parameterType="map" resultType="postvo">
+		select a.no as no, title, a.content as content, date_format(a.reg_date, '%Y-%m-%d') as regDate, category_no
+		as categoryNo, count(c.no) as totalComment
+		from post a, category b, comment c where a.category_no = b.no and a.no = c.post_no
+		<choose>
+			<when test="categoryNo != null">
+				and b.no = #{categoryNo}
+				<choose>
+					<when test="postNo != null">
+						and a.no = #{postNo}
+					</when>
+					<otherwise>
+						and a.no = (select min(no) from post where category_no = #{categoryNo})
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				and b.no = (select min(a.no) from category a, user b
+				where a.user_no = b.no and b.id = #{id})
+				and a.no = (select min(no) from post where category_no = (select min(a.no) from category a, user b
+				where a.user_no = b.no and b.id = #{id}))
+			</otherwise>
+		</choose>
+	</select>
+
+</mapper>

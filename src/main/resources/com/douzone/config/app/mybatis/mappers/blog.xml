@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="blog">
+	<insert id="insert" parameterType="uservo">
+		insert into blog values(#{no}, #{name}, 'spring-logo.jpg' )
+	</insert>
+	
+	<select id="getById" parameterType="string" resultType="blogvo">
+		select user_no as userNo, title, logo from blog a, user b
+		where a.user_no = b.no and b.id = #{id}
+	</select>
+	
+	<select id="getByNo" parameterType="string" resultType="blogvo">
+		select user_no as userNo, title, logo from blog 
+		where user_no = #{no}
+	</select>
+	
+	<update id="update" parameterType="blogvo">
+		update blog set title = #{title}, logo = #{logo} where user_no = #{userNo}
+	</update>
+</mapper>
